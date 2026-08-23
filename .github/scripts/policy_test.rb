@@ -5,6 +5,7 @@ require "minitest/autorun"
 require "open3"
 require "pathname"
 require "tmpdir"
+require "yaml"
 
 class PolicyTest < Minitest::Test
   ROOT = Pathname.new(__dir__).join("../..").cleanpath
@@ -50,6 +51,31 @@ class PolicyTest < Minitest::Test
       config.write(config.read.sub("provider: null", "provider: remote"))
 
       assert_policy_fails(copy, "provider must remain null")
+    end
+  end
+
+  def test_privileged_feedback_checkout_fails
+    with_repository_copy do |copy|
+      workflow = copy.join(".github/workflows/pr-feedback.yml")
+      workflow.write("#{workflow.read}\n# actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1\n")
+
+      assert_policy_fails(copy, "checkout, cache, and artifact actions are prohibited")
+    end
+  end
+
+  def test_feedback_script_has_valid_javascript_syntax
+    workflow = YAML.safe_load(
+      ROOT.join(".github/workflows/pr-feedback.yml").read,
+      aliases: false
+    )
+    script = workflow.dig("jobs", "feedback", "steps", 0, "with", "script")
+
+    Dir.mktmpdir("reviewflow-javascript-") do |directory|
+      wrapped = Pathname.new(directory).join("feedback.js")
+      wrapped.write("async function reviewflow({ github, context, core }) {\n#{script}\n}\n")
+      _stdout, stderr, status = Open3.capture3("node", "--check", wrapped.to_s)
+
+      assert_predicate status, :success?, stderr
     end
   end
 

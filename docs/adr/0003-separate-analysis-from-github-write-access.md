@@ -1,6 +1,6 @@
 # ADR 0003: Separate PR analysis from GitHub write access
 
-- Status: Proposed; security spike required
+- Status: Proposed; implementation added, live fork spike required
 - Date: 2026-08-23
 
 ## Context
@@ -27,3 +27,11 @@ Sprint 0 must prove on a controlled fork PR that:
 - the workflow has only the declared permissions.
 
 If this cannot be proven, automated fork comments are a no-go rather than a reason to introduce `pull_request_target`.
+
+## Implementation state
+
+The `Policy` pull-request workflow uses a read-only token. The separate `PR
+Feedback` workflow runs only after `Policy` completes, never checks out source,
+uses no artifact or cache handoff, rejects stale runs, and updates one marked
+comment plus a status on the current head SHA. It is not a required check until
+the controlled fork validation above succeeds.

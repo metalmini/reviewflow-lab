@@ -91,6 +91,23 @@ failures << "policy workflow: write permission is prohibited" if policy.match?(/
 failures << "policy workflow: checkout credentials must not persist" unless policy.include?("persist-credentials: false")
 failures << "policy workflow: cache and artifact handoff are prohibited" if policy.match?(/actions\/(?:cache|upload-artifact|download-artifact)@/)
 
+feedback_path = ROOT.join(".github/workflows/pr-feedback.yml")
+feedback_content = File.read(feedback_path)
+feedback = YAML.safe_load(feedback_content, aliases: false)
+expected_feedback_permissions = {
+  "contents" => "read",
+  "issues" => "write",
+  "pull-requests" => "read",
+  "statuses" => "write"
+}
+failures << "PR feedback workflow: permissions changed" unless feedback["permissions"] == expected_feedback_permissions
+if feedback_content.match?(/actions\/(?:checkout|cache|upload-artifact|download-artifact)@/)
+  failures << "PR feedback workflow: checkout, cache, and artifact actions are prohibited"
+end
+failures << "PR feedback workflow: must ignore stale runs" unless feedback_content.include?("pull.head.sha !== run.head_sha")
+failures << "PR feedback workflow: must bind to the trusted policy path" unless feedback_content.include?("run.path !== '.github/workflows/policy.yml'")
+failures << "PR feedback workflow: idempotent marker is missing" unless feedback_content.include?("<!-- reviewflow:policy -->")
+
 reviewflow = YAML.safe_load(File.read(ROOT.join(".reviewflow/config.yaml")), aliases: false)
 expected_models = ["codeqwen:latest", "gemma4:latest"].sort
 actual_models = reviewflow.dig("ai", "allowed_local_models")&.sort
