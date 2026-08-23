@@ -80,6 +80,7 @@ successfully at least once.
 
 - Default workflow token permission: read-only.
 - Workflows may not approve pull requests.
+- Every external contributor requires maintainer approval before fork workflows run.
 - Only actions owned by GitHub or explicitly reviewed and pinned third-party actions.
 - Artifact and log retention: seven days if the account setting permits it.
 - No cache increase, larger runners, or paid capacity.

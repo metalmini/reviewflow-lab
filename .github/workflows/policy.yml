@@ -1,0 +1,40 @@
+name: Policy
+
+on:
+  pull_request:
+    branches:
+      - main
+    types:
+      - opened
+      - synchronize
+      - reopened
+      - ready_for_review
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: policy-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  policy:
+    name: policy
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - name: Check out the pull-request merge ref
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 2
+          persist-credentials: false
+
+      - name: Validate repository policy
+        run: ruby .github/scripts/policy.rb
+
+      - name: Test policy failure cases
+        run: ruby .github/scripts/policy_test.rb
+
+      - name: Check changed lines for whitespace errors
+        run: git diff --check HEAD^1 HEAD
