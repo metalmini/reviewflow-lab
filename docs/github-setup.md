@@ -48,10 +48,15 @@ One public personal project named `ReviewFlow Lab`.
 
 Fields:
 
-- Status: Backlog, Ready, In Progress, Review, Done
+- Sprint stage: Backlog, Ready, In Progress, Review, Done
 - Priority: P0, P1, P2
 - Micro-sprint: text
 - Executor: AI, Michael, Shared
+
+GitHub's built-in `Status` field remains available for its default project
+automation. `Sprint stage` is the source of truth for the micro-sprint flow so
+the configured states can be used without destructively replacing that system
+field.
 
 Only one implementation item may be In Progress. Milestones group releases, starting with `v0.1.0`; they do not represent calendar sprints.
 
@@ -66,6 +71,10 @@ Target: default branch.
 - Initially require only validated checks that have completed successfully at least once.
 - Intended checks: `policy`, `ci/php`, `reviewflow/analyze`, and `reviewflow/acknowledgements`.
 - No agent bypass.
+
+The initial ruleset is stored in [`.github/rulesets/main.json`](../.github/rulesets/main.json).
+Required check names are added only after their workflows have completed
+successfully at least once.
 
 ## Actions settings
 

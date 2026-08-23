@@ -24,7 +24,10 @@ Create a public, zero-billing, security-conscious foundation from which every de
 
 ## Current status
 
-In progress. Local model metadata has been recorded. Repository and account settings have not yet been fully validated.
+In progress. The public repository, project, labels, milestone, merge policy,
+Actions permissions, retention, and initial security settings are configured.
+Local model metadata has been recorded. Fork pull-request workflow validation
+and human review remain before Sprint 0 can be accepted.
 
 ## Review and retrospective
 
