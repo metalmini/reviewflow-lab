@@ -1,0 +1,31 @@
+name: Bug report
+description: Report one reproducible problem in ReviewFlow Lab.
+title: "bug: "
+labels:
+  - type:bug
+body:
+  - type: textarea
+    id: observed
+    attributes:
+      label: Observed behaviour
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected behaviour
+    validations:
+      required: true
+  - type: textarea
+    id: reproduce
+    attributes:
+      label: Minimal reproduction
+      description: Use synthetic or public data only. Remove secrets and personal data.
+    validations:
+      required: true
+  - type: textarea
+    id: impact
+    attributes:
+      label: Security, privacy, and cost impact
+    validations:
+      required: true

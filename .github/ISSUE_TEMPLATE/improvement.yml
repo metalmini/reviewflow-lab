@@ -1,0 +1,36 @@
+name: Technical improvement
+description: Deliver one scoped improvement that is not a new analysis rule.
+title: "improvement: "
+labels:
+  - type:feature
+body:
+  - type: textarea
+    id: outcome
+    attributes:
+      label: Observable outcome
+    validations:
+      required: true
+  - type: textarea
+    id: scope
+    attributes:
+      label: Scope and explicit non-goals
+    validations:
+      required: true
+  - type: textarea
+    id: acceptance
+    attributes:
+      label: Acceptance criteria
+    validations:
+      required: true
+  - type: textarea
+    id: verification
+    attributes:
+      label: Verification plan
+    validations:
+      required: true
+  - type: textarea
+    id: risk
+    attributes:
+      label: Security, privacy, dependency, and cost impact
+    validations:
+      required: true

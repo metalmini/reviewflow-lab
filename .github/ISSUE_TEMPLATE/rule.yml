@@ -1,0 +1,52 @@
+name: Analysis rule
+description: Propose one deterministic PHP/Symfony review signal.
+title: "rule: "
+labels:
+  - type:rule
+body:
+  - type: textarea
+    id: outcome
+    attributes:
+      label: Observable outcome
+      description: Describe the one result this rule must produce.
+    validations:
+      required: true
+  - type: textarea
+    id: evidence
+    attributes:
+      label: Evidence and rationale
+      description: Explain why the signal deserves human review and what makes it deterministic.
+    validations:
+      required: true
+  - type: textarea
+    id: examples
+    attributes:
+      label: Positive and negative fixtures
+      description: Give minimal examples that should and should not trigger the rule.
+    validations:
+      required: true
+  - type: textarea
+    id: acceptance
+    attributes:
+      label: Acceptance criteria
+    validations:
+      required: true
+  - type: dropdown
+    id: severity
+    attributes:
+      label: Proposed severity
+      options:
+        - info
+        - warning
+        - blocker
+    validations:
+      required: true
+  - type: checkboxes
+    id: ready
+    attributes:
+      label: Ready checks
+      options:
+        - label: No remote AI, secret, or paid service is required.
+          required: true
+        - label: The result fits in one pull request.
+          required: true
