@@ -106,12 +106,20 @@ failures << ".reviewflow/accepted-risks.yaml: acceptances must be a list" unless
 
 ruleset = JSON.parse(File.read(ROOT.join(".github/rulesets/main.json")))
 rule_types = ruleset.fetch("rules", []).map { |rule| rule["type"] }
-required_rule_types = %w[deletion non_fast_forward required_linear_history pull_request]
+required_rule_types = %w[deletion non_fast_forward required_linear_history required_status_checks pull_request]
 
 failures << ".github/rulesets/main.json: ruleset must be active" unless ruleset["enforcement"] == "active"
 failures << ".github/rulesets/main.json: bypass actors are prohibited" unless ruleset["bypass_actors"] == []
 (required_rule_types - rule_types).each do |type|
   failures << ".github/rulesets/main.json: missing #{type} rule"
+end
+
+status_rule = ruleset.fetch("rules", []).find { |rule| rule["type"] == "required_status_checks" }
+required_checks = status_rule&.dig("parameters", "required_status_checks") || []
+policy_check = required_checks.find { |check| check["context"] == "policy" }
+failures << ".github/rulesets/main.json: policy check must be required" unless policy_check
+if policy_check && policy_check["integration_id"] != 15_368
+  failures << ".github/rulesets/main.json: policy check must be bound to GitHub Actions"
 end
 
 if failures.any?

@@ -73,8 +73,9 @@ Target: default branch.
 - No agent bypass.
 
 The initial ruleset is stored in [`.github/rulesets/main.json`](../.github/rulesets/main.json).
-Required check names are added only after their workflows have completed
-successfully at least once.
+The `policy` check is required and bound to the GitHub Actions integration after
+its first successful run. Other check names are added only after their
+workflows have completed successfully at least once.
 
 ## Actions settings
 

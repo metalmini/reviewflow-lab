@@ -26,9 +26,10 @@ Create a public, zero-billing, security-conscious foundation from which every de
 
 In progress. The public repository, project, labels, milestone, merge policy,
 Actions permissions, retention, and initial security settings are configured.
-Local model metadata has been recorded. A read-only policy workflow is being
-validated on the foundation pull request. Fork pull-request comment/status
-validation and human review remain before Sprint 0 can be accepted.
+Local model metadata has been recorded. The read-only `policy` workflow passed
+on the foundation pull request and is being added to the protected-branch gate.
+Fork pull-request comment/status validation and human review remain before
+Sprint 0 can be accepted.
 
 ## Review and retrospective
 
