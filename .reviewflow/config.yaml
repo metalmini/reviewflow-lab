@@ -1,0 +1,20 @@
+version: 1
+
+provider: null
+
+limits:
+  max_files: 100
+  max_changed_lines: 10000
+  max_diff_bytes: 1048576
+
+ai:
+  enabled: false
+  allowed_local_models:
+    - gemma4:latest
+    - codeqwen:latest
+  max_input_bytes: 50000
+  max_context_tokens: 16384
+  max_output_tokens: 800
+  max_requests: 1
+  timeout_seconds: 60
+  retries: 0

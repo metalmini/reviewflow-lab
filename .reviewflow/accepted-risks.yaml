@@ -1,0 +1,6 @@
+version: 1
+
+# Entries are added only after explicit approval by the human maintainer.
+# Each entry must contain: id, rule, scope, reason, approved_by,
+# approved_at, expires_at, and evidence_url.
+acceptances: []

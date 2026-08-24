@@ -1,0 +1,133 @@
+name: PR Feedback
+
+on:
+  workflow_run:
+    workflows:
+      - Policy
+    types:
+      - completed
+
+permissions:
+  contents: read
+  issues: write
+  pull-requests: read
+  statuses: write
+
+concurrency:
+  group: pr-feedback-${{ github.event.workflow_run.head_repository.full_name }}-${{ github.event.workflow_run.head_branch }}
+  cancel-in-progress: true
+
+jobs:
+  feedback:
+    name: reviewflow/comment
+    if: >-
+      github.event.workflow_run.event == 'pull_request' &&
+      github.event.workflow_run.repository.full_name == github.repository
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - name: Update the ReviewFlow pull-request comment and status
+        uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
+        with:
+          github-token: ${{ github.token }}
+          script: |
+            const marker = '<!-- reviewflow:policy -->';
+            const run = context.payload.workflow_run;
+            const { owner, repo } = context.repo;
+
+            if (run.path !== '.github/workflows/policy.yml') {
+              core.setFailed(`Refusing unexpected workflow path: ${run.path}`);
+              return;
+            }
+
+            let candidates = run.pull_requests || [];
+
+            if (candidates.length === 0) {
+              const associated = await github.rest.repos.listPullRequestsAssociatedWithCommit({
+                owner,
+                repo,
+                commit_sha: run.head_sha,
+              });
+              candidates = associated.data;
+            }
+
+            const openCandidates = [];
+            for (const candidate of candidates) {
+              const response = await github.rest.pulls.get({
+                owner,
+                repo,
+                pull_number: candidate.number,
+              });
+              if (response.data.state === 'open') {
+                openCandidates.push(response.data);
+              }
+            }
+
+            if (openCandidates.length !== 1) {
+              core.setFailed(`Expected one open pull request for workflow run ${run.id}; found ${openCandidates.length}.`);
+              return;
+            }
+
+            const pull = openCandidates[0];
+            if (pull.head.sha !== run.head_sha) {
+              core.notice(`Ignoring stale workflow run ${run.id} for pull request #${pull.number}.`);
+              return;
+            }
+
+            const passed = run.conclusion === 'success';
+            const shortSha = run.head_sha.slice(0, 7);
+            const status = passed ? 'passed' : `failed (${run.conclusion || 'unknown'})`;
+            const symbol = passed ? '✅' : '❌';
+            const warningText = passed
+              ? 'None detected by the current deterministic foundation policy.'
+              : 'Not evaluated because the policy workflow did not pass.';
+
+            const body = [
+              marker,
+              '**ReviewFlow automated review**',
+              '',
+              `Commit: \`${shortSha}\``,
+              `Policy: ${symbol} ${status}`,
+              `Warnings requiring human acceptance: ${warningText}`,
+              `Run: [view details](${run.html_url})`,
+              '',
+              'This comment is updated in place. Only `metalmini` may accept a warning, mark the pull request ready, merge, or approve a release.',
+            ].join('\n');
+
+            await github.rest.repos.createCommitStatus({
+              owner,
+              repo,
+              sha: run.head_sha,
+              state: passed ? 'success' : 'failure',
+              context: 'reviewflow/acknowledgements',
+              description: passed
+                ? 'No policy warnings require acknowledgement'
+                : 'Policy workflow must pass before acknowledgement',
+              target_url: run.html_url,
+            });
+
+            const comments = await github.paginate(github.rest.issues.listComments, {
+              owner,
+              repo,
+              issue_number: pull.number,
+              per_page: 100,
+            });
+            const existing = comments.find((comment) =>
+              comment.user?.login === 'github-actions[bot]' && comment.body?.includes(marker)
+            );
+
+            if (existing) {
+              await github.rest.issues.updateComment({
+                owner,
+                repo,
+                comment_id: existing.id,
+                body,
+              });
+            } else {
+              await github.rest.issues.createComment({
+                owner,
+                repo,
+                issue_number: pull.number,
+                body,
+              });
+            }

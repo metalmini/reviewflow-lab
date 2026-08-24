@@ -1,0 +1,37 @@
+name: Research spike
+description: Resolve one material uncertainty before implementation.
+title: "research: "
+labels:
+  - type:research
+body:
+  - type: textarea
+    id: question
+    attributes:
+      label: Decision question
+    validations:
+      required: true
+  - type: textarea
+    id: facts
+    attributes:
+      label: Facts to verify
+      description: Prefer primary and official sources.
+    validations:
+      required: true
+  - type: textarea
+    id: options
+    attributes:
+      label: Options and trade-offs
+    validations:
+      required: true
+  - type: textarea
+    id: evidence
+    attributes:
+      label: Required evidence
+    validations:
+      required: true
+  - type: textarea
+    id: stop
+    attributes:
+      label: Stop criterion
+    validations:
+      required: true
